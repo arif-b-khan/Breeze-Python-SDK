@@ -1,0 +1,4 @@
+breeze_connect/__pycache__/*
+*egg-info
+build/*
+dist/*

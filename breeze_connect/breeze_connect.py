@@ -20,6 +20,11 @@ import config
 
 
 requests.packages.urllib3.util.connection.HAS_IPV6 = False
+INSECURE_REQUEST_WARNING = False if os.getenv(
+    'INSECURE_REQUEST_WARNING') is None else True
+if INSECURE_REQUEST_WARNING:
+    from urllib3.exceptions import InsecureRequestWarning
+    requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
 
 resp = urlopen(config.SECURITY_MASTER_URL)
 zipfile = ZipFile(BytesIO(resp.read()))
@@ -900,20 +905,20 @@ class ApificationBreeze():
         except Exception as e:
             self.error_exception(self.generate_headers.__name__,e)
 
-    def make_request(self, method, endpoint, body, headers):
+    def make_request(self, method, endpoint, body, headers, suppress_ssl_warning=INSECURE_REQUEST_WARNING):
         try:
             url = self.hostname + endpoint
             if method == req_type.GET:
-                res = requests.get(url=url, data=body, headers=headers)
+                res = requests.get(url=url, data=body, headers=headers, verify=suppress_ssl_warning)
                 return res
             elif method == req_type.POST:
-                res = requests.post(url=url, data=body, headers=headers)
+                res = requests.post(url=url, data=body, headers=headers, verify=suppress_ssl_warning)
                 return res
             elif method == req_type.PUT:
-                res = requests.put(url=url, data=body, headers=headers)
+                res = requests.put(url=url, data=body, headers=headers, verify=suppress_ssl_warning)
                 return res
             elif method == req_type.DELETE:
-                res = requests.delete(url=url, data=body, headers=headers)
+                res = requests.delete(url=url, data=body, headers=headers, verify=suppress_ssl_warning)
                 return res
         except Exception as e:
             self.error_exception(except_message.API_REQUEST_EXCEPTION.value.format(method,url),e)
